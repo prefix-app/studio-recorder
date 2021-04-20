@@ -14,7 +14,7 @@ exports[`RecordingTab.vue it has the correct pristine / empty state 1`] = `
        
       <img
         src="/images/puppeteer.png"
-        width="16"
+        width="14"
       />
        
       <span
@@ -69,7 +69,7 @@ exports[`RecordingTab.vue it show a code box when there is code 1`] = `
        
       <img
         src="/images/puppeteer.png"
-        width="16"
+        width="14"
       />
        
       <span

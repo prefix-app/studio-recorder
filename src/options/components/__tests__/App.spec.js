@@ -5,6 +5,9 @@ function createChromeLocalStorageMock (options) {
   let ops = options || {}
   return {
     options,
+    cookies: {
+      getAll: () => []
+    },
     storage: {
       local: {
         get: (key, cb) => { return cb(ops) },

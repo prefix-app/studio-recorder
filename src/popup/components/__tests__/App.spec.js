@@ -2,6 +2,9 @@ import { createLocalVue, shallowMount } from '@vue/test-utils'
 import App from '../App'
 
 const chrome = {
+  cookies: {
+    getAll: () => []
+  },
   storage: {
     local: {
       get: jest.fn()

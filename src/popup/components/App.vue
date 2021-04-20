@@ -32,8 +32,22 @@
         </div>
         <ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />
         <div class="results-footer" v-show="showResultsTab">
-          <button class="btn btn-sm btn-primary" @click="restart" v-show="code">Restart</button>
-          <a href="#" v-clipboard:copy="getCodeForCopy()" @click.prevent="setCopying" v-show="code">{{copyLinkText}}</a>
+          <div>
+            <button class="btn btn-sm btn-primary" @click="restart" v-show="code">
+            Restart
+            </button>
+            <button v-if="isLoggedIn" class="btn btn-sm btn-icon btn-primary" @click="run" v-show="code">
+              <img src="/images/zap.svg" alt="zap"/>
+              Run in Checkly
+            </button>
+            <a v-else class="btn btn-sm btn-outline-primary btn-icon" href="https://checklyhq.com" v-show="code">
+              <img src="/images/arrow.svg" alt="zap"/>
+              Signup on Checkly
+            </a>
+          </div>
+          <a href="#" role="button" v-clipboard:copy="getCodeForCopy()" @click.prevent="setCopying" v-show="code">
+            {{copyLinkText}}
+          </a>
         </div>
       </div>
       <HelpTab v-show="showHelp"></HelpTab>
@@ -67,9 +81,24 @@ export default {
         isRecording: false,
         isPaused: false,
         isCopying: false,
+        isLoggedIn: false,
         bus: null,
         version,
         currentResultTab: null
+      }
+    },
+    computed: {
+      recordingBadgeText () {
+        return this.isPaused ? 'paused' : 'recording'
+      },
+      recordButtonText () {
+        return this.isRecording ? 'Stop' : 'Record'
+      },
+      pauseButtonText () {
+        return this.isPaused ? 'Resume' : 'Pause'
+      },
+      copyLinkText () {
+        return this.isCopying ? 'Copied!' : 'Copy to clipboard'
       }
     },
     mounted () {
@@ -87,7 +116,15 @@ export default {
           this.showResultsTab = true
         }
       })
+
       this.bus = this.$chrome.extension.connect({ name: 'recordControls' })
+
+      this.$chrome.cookies.getAll({}, (res) => {
+        console.log(res.find(cookie => cookie.name.startsWith('checkly_has_account')))
+        if (res.find(cookie => cookie.name.startsWith('checkly_has_account'))) {
+          this.isLoggedIn = true
+        }
+      })
     },
     methods: {
       toggleRecord () {
@@ -209,22 +246,13 @@ export default {
       },
       getCodeForCopy () {
         return this.currentResultTab === 'puppeteer' ? this.code : this.codeForPlaywright
+      },
+      run () {
+        const script = encodeURIComponent(btoa(this.code))
+        const url = `https://app.checklyhq.com/checks/new/browser?framework=${this.currentResultTab}&script=${script}`
+        chrome.tabs.create({ url });
       }
     },
-    computed: {
-      recordingBadgeText () {
-        return this.isPaused ? 'paused' : 'recording'
-      },
-      recordButtonText () {
-        return this.isRecording ? 'Stop' : 'Record'
-      },
-      pauseButtonText () {
-        return this.isPaused ? 'Resume' : 'Pause'
-      },
-      copyLinkText () {
-        return this.isCopying ? 'copied!' : 'copy to clipboard'
-      }
-    }
 }
 </script>
 
@@ -280,6 +308,13 @@ export default {
       }
     }
     .results-footer {
+      div {
+        display: flex;
+        button {
+          margin-right: 0.5rem;
+        }
+      }
+
       @include footer()
     }
   }

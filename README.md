@@ -10,7 +10,7 @@
   </p>
 </p>
 
-> ⭐️ Puppeteer Recorder is now **Headless Recorder** and supports Playwright! ⭐️   
+> ⭐️ Puppeteer Recorder is now **Headless Recorder** and supports Playwright! ⭐️
 
 <p align="center">
   <img src="src/images/recorder.png" alt="Headless Recorder Screenshot" />
@@ -57,11 +57,23 @@ This project builds on existing open source projects (see [Credits](#-credits)) 
 1. Open the terminal and clone the project: `$ git clone https://github.com/checkly/headless-recorder.git`
 1. Access project directory and use npm to install dependencies: `$ cd headless-recorder && npm i`
 1. Use the build npm script to build it: `$ npm run dev`
-1. Open chrome and navigate to extensions page using this URL: `chrome://extensions` 
+1. Open chrome and navigate to extensions page using this URL: `chrome://extensions`
 1. Make sure 'Developer mode' is enabled
 1. Click "Load unpacked extension" button, browse the `headless-recorder/build` directory and select it
 
 <br>
+
+## 🧪 Test
+
+```bash
+$ npm test # run all tests
+$ npm test:e2e # run only e2e tests
+$ npm test:unit # run only unit tests
+
+$ npm test:prod # run all tests for production
+```
+
+> Tests are run with jest and some of them matches against snapshots. If you would like to regenerate snapshots just use `-u` flag along with the test script: `npm run test:unit -- -u`
 
 ## 🚀 Release
 
@@ -75,9 +87,9 @@ with the name of the tag.
 
 <br>
 
-## 🙏 Credits 
+## 🙏 Credits
 
-Headless recorder is the spiritual successor & love child of segment.io's [Daydream](https://github.com/segmentio/daydream) and [ui recorder](https://github.com/yguan/ui-recorder). 
+Headless recorder is the spiritual successor & love child of segment.io's [Daydream](https://github.com/segmentio/daydream) and [ui recorder](https://github.com/yguan/ui-recorder).
 
 <br>
 

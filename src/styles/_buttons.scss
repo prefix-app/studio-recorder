@@ -1,4 +1,4 @@
-button {
+button, a {
   &.btn {
     display: inline-block;
     font-weight: 300;
@@ -34,6 +34,17 @@ button {
       color: #fff;
       background-color: $brand-danger;
       border-color: $brand-danger;
+    }
+
+    &.btn-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      img {
+        margin-right: .25rem;
+        width: 15px;
+      }
     }
   }
 }

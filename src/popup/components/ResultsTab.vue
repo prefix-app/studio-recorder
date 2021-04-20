@@ -3,7 +3,7 @@
     <div class="tabs">
       <button v-for="tab in tabs" :key="tab" class="tabs__action" v-bind:class="{'selected': activeTab === tab}" @click.prevent="changeTab(tab)">
         <span v-if="tab === 'playwright'">🎭</span>
-        <img v-if="tab === 'puppeteer'" src="/images/puppeteer.png" width="16" />
+        <img v-if="tab === 'puppeteer'" src="/images/puppeteer.png" width="14" />
         <span class="tabs__action--text">{{ tab }}</span>
       </button>
     </div>
@@ -28,11 +28,11 @@ export default {
   name: 'ResultsTab',
   props: {
     puppeteer: {
-      type: String, 
+      type: String,
       default: ''
     },
     playwright: {
-      type: String, 
+      type: String,
       default: ''
     },
     options: {
@@ -82,8 +82,12 @@ export default {
       }
 
       pre {
+        margin: 0;
         padding: 0 $spacer;
         font-size: 12px;
+      }
+      code {
+        padding-bottom: 1.5rem;
       }
       .code {
         font-family: Consolas, Monaco, monospace;

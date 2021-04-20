@@ -108,18 +108,39 @@ exports[`App.vue it has the correct pristine / empty state 1`] = `
         class="results-footer"
         style="display: none;"
       >
-        <button
-          class="btn btn-sm btn-primary"
-          style="display: none;"
-        >
+        <div>
+          <button
+            class="btn btn-sm btn-primary"
+            style="display: none;"
+          >
+            
           Restart
-        </button>
+          
+          </button>
+           
+          <a
+            class="btn btn-sm btn-outline-primary btn-icon"
+            href="https://checklyhq.com"
+            style="display: none;"
+          >
+            <img
+              alt="zap"
+              src="/images/arrow.svg"
+            />
+            
+            Signup on Checkly
+          
+          </a>
+        </div>
          
         <a
           href="#"
+          role="button"
           style="display: none;"
         >
-          copy to clipboard
+          
+          Copy to clipboard
+        
         </a>
       </div>
     </div>
