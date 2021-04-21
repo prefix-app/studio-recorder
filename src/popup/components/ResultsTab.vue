@@ -68,6 +68,9 @@ export default {
   @import "~styles/_variables.scss";
 
   .results-tab {
+    height: 400px;
+    overflow: auto;
+
     .content {
       display:flex;
       flex-direction:column;
@@ -87,7 +90,7 @@ export default {
         font-size: 12px;
       }
       code {
-        padding-bottom: 1.5rem;
+        overflow-x: inherit;
       }
       .code {
         font-family: Consolas, Monaco, monospace;

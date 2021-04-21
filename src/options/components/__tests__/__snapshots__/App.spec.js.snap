@@ -10,27 +10,27 @@ exports[`App.vue it has the correct pristine / empty state 1`] = `
     <div
       class="header"
     >
-      
+
       Headless Recorder Options
-      
+
       <small
         class="saving-badge text-muted"
         style="display: none;"
       >
-        
+
         Saving...
-      
+
       </small>
     </div>
-     
+
     <!---->
-     
+
     <div
       class="footer"
     >
-      
-      sponsored by
-      
+
+      Supported by
+
       <a
         href="https://checklyhq.com"
         target="_blank"

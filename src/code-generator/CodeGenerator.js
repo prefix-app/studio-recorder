@@ -8,8 +8,9 @@ export const defaults = {
   waitForNavigation: true,
   waitForSelectorOnClick: true,
   blankLinesBetweenBlocks: true,
-  dataAttribute: '',
+  showSelectorsHelper: true,
   showPlaywrightFirst: false,
+  dataAttribute: '',
   keyCode: 9
 }
 

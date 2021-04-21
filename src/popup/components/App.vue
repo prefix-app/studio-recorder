@@ -21,12 +21,14 @@
       <div class="tabs" v-show="!showHelp">
         <RecordingTab :code="code" :is-recording="isRecording" :live-events="liveEvents" v-show="!showResultsTab"/>
         <div class="recording-footer" v-show="!showResultsTab">
-          <button class="btn btn-sm" @click="toggleRecord" :class="isRecording ? 'btn-danger' : 'btn-primary'">
+          <div>
+            <button class="btn btn-sm" @click="toggleRecord" :class="isRecording ? 'btn-danger' : 'btn-primary'">
             {{recordButtonText}}
-          </button>
-          <button class="btn btn-sm btn-primary btn-outline-primary" @click="togglePause" v-show="isRecording">
-            {{pauseButtonText}}
-          </button>
+            </button>
+            <button class="btn btn-sm btn-primary btn-outline-primary" @click="togglePause" v-show="isRecording">
+              {{pauseButtonText}}
+            </button>
+          </div>
           <a href="#" @click="showResultsTab = true" v-show="code">view code</a>
           <checkly-badge v-if="!isRecording"></checkly-badge>
         </div>
@@ -87,6 +89,7 @@ export default {
         currentResultTab: null
       }
     },
+
     computed: {
       recordingBadgeText () {
         return this.isPaused ? 'paused' : 'recording'
@@ -101,6 +104,7 @@ export default {
         return this.isCopying ? 'Copied!' : 'Copy to clipboard'
       }
     },
+
     mounted () {
       this.loadState(() => {
         this.trackPageView()
@@ -126,6 +130,7 @@ export default {
         }
       })
     },
+
     methods: {
       toggleRecord () {
         if (this.isRecording) {
@@ -136,6 +141,7 @@ export default {
         this.isRecording = !this.isRecording
         this.storeState()
       },
+
       togglePause () {
         if (this.isPaused) {
           this.bus.postMessage({ action: actions.UN_PAUSE })
@@ -146,12 +152,15 @@ export default {
         }
         this.storeState()
       },
+
       start () {
         this.trackEvent('Start')
         this.cleanUp()
         console.debug('start recorder')
-        this.bus.postMessage({ action: actions.START })
+        console.log({...this.options })
+        this.bus.postMessage({ action: actions.START, options: this.options })
       },
+
       stop () {
         this.trackEvent('Stop')
         console.debug('stop recorder')
@@ -172,11 +181,13 @@ export default {
           this.storeState()
         })
       },
+
       restart () {
         console.log('restart')
         this.cleanUp()
         this.bus.postMessage({ action: actions.CLEAN_UP })
       },
+
       cleanUp () {
         this.recording = this.liveEvents = []
         this.code = ''
@@ -184,12 +195,14 @@ export default {
         this.showResultsTab = this.isRecording = this.isPaused = false
         this.storeState()
       },
+
       openOptions () {
         this.trackEvent('Options')
         if (this.$chrome.runtime.openOptionsPage) {
           this.$chrome.runtime.openOptionsPage()
         }
       },
+
       loadState (cb) {
         this.$chrome.storage.local.get(['controls', 'code', 'options', 'codeForPlaywright'], ({ controls, code, options, codeForPlaywright }) => {
           if (controls) {
@@ -211,6 +224,7 @@ export default {
           cb()
         })
       },
+
       storeState () {
         this.$chrome.storage.local.set({
           code: this.code,
@@ -221,36 +235,47 @@ export default {
           }
         })
       },
+
       setCopying () {
         this.trackEvent('Copy')
         this.isCopying = true
         setTimeout(() => { this.isCopying = false }, 1500)
       },
+
       goHome () {
         this.showResultsTab = false
         this.showHelp = false
       },
+
       toggleShowHelp () {
         this.trackEvent('Help')
         this.showHelp = !this.showHelp
       },
+
       trackEvent (event) {
         if (this.options && this.options.extension && this.options.extension.telemetry) {
           if (window._gaq) window._gaq.push(['_trackEvent', event, 'clicked'])
         }
       },
+
       trackPageView () {
         if (this.options && this.options.extension && this.options.extension.telemetry) {
           if (window._gaq) window._gaq.push(['_trackPageview'])
         }
       },
+
       getCodeForCopy () {
         return this.currentResultTab === 'puppeteer' ? this.code : this.codeForPlaywright
       },
+
       run () {
         const script = encodeURIComponent(btoa(this.code))
         const url = `https://app.checklyhq.com/checks/new/browser?framework=${this.currentResultTab}&script=${script}`
         chrome.tabs.create({ url });
+      },
+
+      a (e) {
+        console.log(e.target)
       }
     },
 }
@@ -300,14 +325,14 @@ export default {
     }
 
     .recording-footer {
-      @include footer();
       img {
         margin-left: 8px;
         width: 80px;
         vertical-align: middle;
       }
     }
-    .results-footer {
+
+    .results-footer, .recording-footer {
       div {
         display: flex;
         button {

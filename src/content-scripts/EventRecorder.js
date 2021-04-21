@@ -16,6 +16,17 @@ export default class EventRecorder {
     this._screenShotMode = false
     this._isTopFrame = (window.location === window.parent.location)
     this._isRecordingClicks = true
+
+    this.mouseOverEvent = null
+    this.mouseOutEvent = null
+    this.selectorHelper = null
+
+    chrome.extension.onConnect.addListener(port => {
+      console.debug('listeners connected')
+      port.onMessage.addListener(msg => {
+        console.log(msg)
+      })
+    })
   }
 
   boot () {
@@ -57,14 +68,19 @@ export default class EventRecorder {
   _handleBackgroundMessage (msg, sender, sendResponse) {
     console.debug('content-script: message from background', msg)
     if (msg && msg.action) {
+      console.log('ACAAA', msg)
       switch (msg.action) {
         case actions.TOGGLE_SCREENSHOT_MODE:
           this._handleScreenshotMode(false)
           break
+
         case actions.TOGGLE_SCREENSHOT_CLIPPED_MODE:
           this._handleScreenshotMode(true)
           break
-        default:
+
+        case actions.TOGGLE_SELECTOR_HELPER:
+          msg.value ? this._attachSelectorHelper() : this._dettachSelectorHelper()
+          break
       }
     }
   }
@@ -126,8 +142,6 @@ export default class EventRecorder {
     this._screenShotMode = !this._screenShotMode
     document.body.style.cursor = 'crosshair'
 
-    console.debug('screenshot mode:', this._screenShotMode)
-
     if (this._screenShotMode) {
       this._uiController.showSelector()
     } else {
@@ -164,6 +178,66 @@ export default class EventRecorder {
       optimizedMinLength: (e.target.id) ? 2 : 10,
       attr: (name, _value) => name === this._dataAttribute
     })
+  }
+
+  _attachSelectorHelper () {
+    console.debug('attach overlay')
+
+    if (this.selectorHelper) { return }
+
+    this.selectorHelper = document.createElement('span')
+    this.selectorHelper.className = 'selector-helper'
+    document.body.appendChild(this.selectorHelper)
+
+    this.mouseOverEvent = (e) => {
+      this.selectorHelper.innerText = this._getSelector(e)
+      e.target.classList.add('curent-selector')
+    }
+
+    this.mouseOutEvent = (e) => {
+      e.target.classList.remove('curent-selector')
+    }
+
+    window.document.addEventListener('mouseover', this.mouseOverEvent)
+    window.document.addEventListener('mouseout', this.mouseOutEvent)
+
+    // TODO: Move this to inline styles and avoid classes
+    const css = `
+    .curent-selector {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .selector-helper {
+      z-index: 2147483647;
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background-color: #000;
+      border-radius: 1px;
+      font-family: monospace;
+      font-size: 12px;
+      font-weigth: 500;
+      color: #fff;
+      padding: 0.1rem 0.3rem;
+      transition: all 0.1s ease;
+    }
+    `
+
+    const head = document.head || document.getElementsByTagName('head')[0]
+    const style = document.createElement('style')
+
+    head.appendChild(style)
+
+    style.type = 'text/css'
+    style.appendChild(document.createTextNode(css))
+  }
+
+  _dettachSelectorHelper () {
+    console.debug('dettach overlay')
+    document.body.removeChild(this.selectorHelper)
+    this.selectorHelper = null
+    window.document.removeEventListener('mouseover', this.mouseOverEvent)
+    window.document.removeEventListener('mouseout', this.mouseOutEvent)
   }
 
   static _getCoordinates (evt) {

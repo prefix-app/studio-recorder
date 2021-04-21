@@ -67,6 +67,12 @@
             </div>
             <div class="settings-group">
               <label>
+                <input id="options-code-showSelectorsHelper" type="checkbox" v-model="options.code.showSelectorsHelper" @change="save">
+                Show Selectors Helper
+              </label>
+            </div>
+            <div class="settings-group">
+              <label>
                 <input id="options-code-showPlaywrightFirst" type="checkbox" v-model="options.code.showPlaywrightFirst" @change="save">
                 Show Playwright tab first
               </label>
@@ -90,7 +96,7 @@
         </div>
       </div>
       <div class="footer">
-        sponsored by
+        Supported by
         <a href="https://checklyhq.com" target="_blank">
           <img src="/images/text_racoon_logo.svg" alt="">
         </a>

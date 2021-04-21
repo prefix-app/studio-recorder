@@ -29,16 +29,27 @@ class RecordingController {
     chrome.extension.onConnect.addListener(port => {
       console.debug('listeners connected')
       port.onMessage.addListener(msg => {
-        if (msg.action && msg.action === actions.START) this.start()
-        if (msg.action && msg.action === actions.STOP) this.stop()
-        if (msg.action && msg.action === actions.CLEAN_UP) this.cleanUp()
-        if (msg.action && msg.action === actions.PAUSE) this.pause()
-        if (msg.action && msg.action === actions.UN_PAUSE) this.unPause()
+        console.log(msg)
+        if (msg.action && msg.action === actions.START) {
+          this.start(msg.options)
+        }
+        if (msg.action && msg.action === actions.STOP) {
+          this.stop()
+        }
+        if (msg.action && msg.action === actions.CLEAN_UP) {
+          this.cleanUp()
+        }
+        if (msg.action && msg.action === actions.PAUSE) {
+          this.pause()
+        }
+        if (msg.action && msg.action === actions.UN_PAUSE) {
+          this.unPause()
+        }
       })
     })
   }
 
-  start () {
+  start ({ showSelectorsHelper }) {
     console.debug('start recording')
     this.cleanUp(() => {
       this._badgeState = 'rec'
@@ -46,7 +57,7 @@ class RecordingController {
       this._hasGoto = false
       this._hasViewPort = false
 
-      this.injectScript()
+      this.injectScript({ showSelectorsHelper })
 
       this._boundedMessageHandler = this.handleMessage.bind(this)
       this._boundedNavigationHandler = this.handleNavigation.bind(this)
@@ -89,7 +100,6 @@ class RecordingController {
       })
 
       // add the handlers
-
       this._boundedMenuHandler = this.handleMenuInteraction.bind(this)
       chrome.contextMenus.onClicked.addListener(this._boundedMenuHandler)
 
@@ -110,6 +120,8 @@ class RecordingController {
     chrome.browserAction.setIcon({ path: './images/icon-black.png' })
     chrome.browserAction.setBadgeText({text: this._badgeState})
     chrome.browserAction.setBadgeBackgroundColor({color: '#45C8F1'})
+
+    this.toggleSelectorHelper()
 
     chrome.storage.local.set({ recording: this._recording }, () => {
       console.debug('recording stored')
@@ -223,12 +235,21 @@ class RecordingController {
     })
   }
 
+  toggleSelectorHelper (value = false) {
+    console.debug('toggling selector helpoer')
+    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: actions.TOGGLE_SELECTOR_HELPER, value })
+    })
+  }
+
   handleWait () {
     chrome.browserAction.setBadgeText({ text: 'wait' })
   }
 
-  injectScript () {
-    chrome.tabs.executeScript({ file: 'content-script.js', allFrames: true })
+  injectScript ({ showSelectorsHelper }) {
+    chrome.tabs.executeScript({ file: 'content-script.js', allFrames: true }, () => {
+      this.toggleSelectorHelper(true)
+    })
   }
 }
 
