@@ -2,7 +2,7 @@
   <div class="options">
     <div class="container">
       <div class="header">
-        Options
+         
         <small class="saving-badge text-muted" v-show="saving">
           Saving...
         </small>
@@ -10,69 +10,31 @@
       <div class="content" v-if="!loading">
         <div class="settings-block">
           <h4 class="settings-block-title">
-            Code Recorder settings
+            Recorder Settings
           </h4>
           <div class="settings-block-main">
             <div class="settings-group">
-              <label class="settings-label">custom data attribute</label>
+              <label class="settings-label">advanced selector rules</label>
               <input id="options-code-dataAttribute" type="text" v-model.trim="options.code.dataAttribute" @change="save" placeholder="your custom data-* attribute">
               <small>Define an attribute that we'll attempt to use when selecting the elements, i.e "data-custom". This is handy
                 when React or Vue based apps generate random class names.</small>
-              <small class="settings-warning">⚠️ When data attribute is set, it will take precedence from over other any selector (even ID)</small>
+              <small class="settings-warning">⚠️ Modifying selector rules may cause automations to fail or become brittle</small>
             </div>
             <div class="settings-group">
-              <label class="settings-label">set key code</label>
+              <label class="settings-label">data entry</label>
               <div class="settings-block">
                 <button class="btn btn-sm btn-primary" @click="listenForKeyCodePress">{{ recordingKeyCodePress ? 'Capturing' : 'Click to capture key code'}}</button>
                 <input id="options-code-keyCode" readonly disabled type="number" v-model.number="options.code.keyCode" placeholder="Key Code for input fields (ex. 9 = Tab)">
               </div>
               <small>What key will be used for capturing input changes. The value here is the key code. This will not handle multiple keys.</small>
             </div>
-          </div>
-        </div>
-        <div class="settings-block">
-          <h4 class="settings-block-title">
-            Code Generator settings
-          </h4>
-          <div class="settings-block-main">
             <div class="settings-group">
-              <label>
-                <input id="options-code-wrapAsync" type="checkbox" v-model="options.code.wrapAsync" @change="save">
-                Wrap code in async function
-              </label>
-            </div>
-            <div class="settings-group">
-              <label>
-                <input id="options-code-headless" type="checkbox" v-model="options.code.headless" @change="save">
-                Set <code>headless</code> in puppeteer launch options
-              </label>
-            </div>
-            <div class="settings-group">
-              <label>
-                <input id="options-code-waitForNavigation" type="checkbox" v-model="options.code.waitForNavigation" @change="save">
-                Add <code>waitForNavigation</code> lines on navigation
-              </label>
-            </div>
-            <div class="settings-group">
-              <label>
-                <input id="options-code-waitForSelectorOnClick" type="checkbox" v-model="options.code.waitForSelectorOnClick" @change="save">
-                Add <code>waitForSelector</code> lines before every <code>page.click()</code>
-              </label>
-            </div>
-            <div class="settings-group">
-              <label>
-                <input id="options-code-blankLinesBetweenBlocks" type="checkbox" v-model="options.code.blankLinesBetweenBlocks" @change="save">
-                Add blank lines between code blocks
-              </label>
-            </div>
-            <div class="settings-group">
-              <label>
-                <input id="options-code-showPlaywrightFirst" type="checkbox" v-model="options.code.showPlaywrightFirst" @change="save">
-                Show Playwright tab first
-              </label>
+              <label class="settings-label">data extraction</label>
+              <small>Prefix does not currently support recording data extraction. To select data to scrape or export out of a website, please use the Studio.</small>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -214,6 +176,8 @@
           margin-bottom: $spacer;
 
           .settings-group {
+            margin-top: $spacer;
+            padding-top: $spacer;
             margin-bottom: $spacer;
             display: block;
           }

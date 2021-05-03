@@ -28,7 +28,7 @@
         </div>
         <!--<ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />-->
         <div class="results-footer" v-show="showResultsTab">
-          <button class="btn btn-sm btn-primary" @click="restart" v-show="code">Restart</button>
+          <button class="btn btn-sm btn-primary" @click="restart" v-show="code">Retry</button>
           <a href="#" v-clipboard:copy="getCodeForCopy()" @click.prevent="setCopying" v-show="code">{{copyLinkText}}</a>
         </div>
       </div>
