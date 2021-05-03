@@ -1,24 +1,13 @@
 <template>
   <div class="tab recording-tab">
     <div class="content">
-      <div class="empty" v-show="!isRecording">
-        <img src="/images/Desert.svg" alt="desert" width="78px">
-        <h3>No recorded events yet</h3>
-        <p class="text-muted">Click record to begin</p>
-        <div class="nag-cta" v-show="!isRecording">
-          <a href="https://checklyhq.com/headless-recorder" target="_blank">Puppeteer Recorder is now <strong>Headless Recorder</strong> and supports Playwright →</a>
-        </div>
-      </div>
-      <div class="events" v-show="isRecording">
+      <div class="events" v-show="true">
         <p class="text-muted text-center loading" v-show="liveEvents.length === 0">Waiting for events</p>
-        <ul class="event-list">
+        <ul class="event-list" v-show="liveEvents.length > 0">
           <li v-for="(event, index) in liveEvents" :key="index" class="event-list-item">
-            <div class="event-label">
-              {{index + 1}}.
-            </div>
             <div class="event-description">
               <div class="event-action">{{event.action}}</div>
-              <div class="event-props text-muted">{{event.selector || parseEventValue(event)}}</div>
+              <div class="event-props text-muted">{{event.readableName || parseEventValue(event)}}</div>
             </div>
           </li>
         </ul>
@@ -46,6 +35,10 @@
   @import "~styles/_animations.scss";
   @import "~styles/_variables.scss";
 
+  .loading {
+    margin-bottom: auto;
+    margin-top: auto;
+  }
 
   .recording-tab {
     .content {

@@ -18,6 +18,121 @@ export default class EventRecorder {
     this._isRecordingClicks = true
   }
 
+  _translateAction(e) {
+    switch (e.type) {
+      case "click":
+        return "Click Once";
+      case "keydown":
+        return "Fill Field";
+      case "change":
+        return "Dropdown Select";
+      case "navigation*":
+        return "Open URL";
+      case "goto*":
+        return "Open URL";
+    }
+    return e.type;
+  }
+
+  _getReadableName(el, selectedSelector) {
+    var readableName = '';
+  
+    if ('name' in el) {
+      if (el.name !== '') {
+        readableName = el.name;
+      }
+    }
+    if ('defaultValue' in el) {
+      if (el.defaultValue !== '') {
+        readableName = el.defaultValue;
+      }
+    }
+    if ('placeholder' in el) {
+      if (el.placeholder !== '') {
+        readableName = el.placeholder;
+      }
+    }
+    if ('innerText' in el) {
+      if (el.innerText !== '') {
+        readableName = el.innerText;
+      }
+    }
+    if ('alt' in el) {
+      if (el.alt !== '') {
+        readableName = el.alt;
+      }
+    }
+    if ('title' in el) {
+      if (el.title !== '') {
+        readableName = el.title;
+      }
+    }
+  
+    if (readableName === '') {
+      readableName = selectedSelector;
+    }
+  
+    if (readableName.length > 26) {
+      readableName = readableName.substring(0, 26) + '..';
+    }
+  
+    if (el.tagName == 'A') {
+      readableName += " [Link]"
+    }
+    if (el.tagName == 'INPUT') {
+      if (el.type == 'BUTTON') {
+        readableName += " [Button]"
+      } else if (el.type == 'CHECKBOX') {
+        readableName += " [Checkbox]"
+      } else if (el.type == 'COLOR') {
+        readableName += " [Color]"
+      } else if (el.type == 'DATE') {
+        readableName += " [Date]"
+      } else if (el.type == 'FILE') {
+        readableName += " [File]"
+      } else if (el.type == 'RADIO') {
+        readableName += " [Radio]"
+      } else if (el.type == 'TEXT') {
+        readableName += " [Text]"
+      } else {
+        readableName += " [Input]"
+      }
+    }
+    if (el.tagName == 'BUTTON') {
+      readableName += " [Button]"
+    }
+    if (el.tagName == 'IMG') {
+      readableName += " [Image]"
+    }
+    if (['SPAN', 'P'].includes(el.tagName)) {
+      readableName += " [Text]"
+    }
+    if (['SECTION', 'DIV'].includes(el.tagName)) {
+      if (el.type == 'BUTTON') {
+        readableName += " [Button]"
+      } else if (el.type == 'CHECKBOX') {
+        readableName += " [Checkbox]"
+      } else if (el.type == 'COLOR') {
+        readableName += " [Color]"
+      } else if (el.type == 'DATE') {
+        readableName += " [Date]"
+      } else if (el.type == 'FILE') {
+        readableName += " [File]"
+      } else if (el.type == 'RADIO') {
+        readableName += " [Radio]"
+      } else if (el.type == 'TEXT') {
+        readableName += " [Text]"
+      } else {
+        readableName += " [Section]"
+      }
+    }
+    if (['TR', 'TD', 'TH', 'TABLE'].includes(el.tagName)) {
+      readableName += " [Table]"
+    }
+  
+    return readableName;
+  }
+
   boot () {
     // We need to check the existence of chrome for testing purposes
     if (chrome.storage && chrome.storage.local) {
@@ -49,7 +164,7 @@ export default class EventRecorder {
     if (this._isTopFrame) {
       this._sendMessage({ control: ctrl.EVENT_RECORDER_STARTED })
       this._sendMessage({ control: ctrl.GET_CURRENT_URL, href: window.location.href })
-      this._sendMessage({ control: ctrl.GET_VIEWPORT_SIZE, coordinates: { width: window.innerWidth, height: window.innerHeight } })
+      //this._sendMessage({ control: ctrl.GET_VIEWPORT_SIZE, coordinates: { width: window.innerWidth, height: window.innerHeight } })
       console.debug('Puppeteer Recorder in-page EventRecorder started')
     }
   }
@@ -103,8 +218,9 @@ export default class EventRecorder {
       this._sendMessage({
         selector: this._getSelector(e),
         value: e.target.value,
+        readableName: this._getReadableName(e.target, this._getSelector(e)),
         tagName: e.target.tagName,
-        action: e.type,
+        action: this._translateAction(e),
         keyCode: e.keyCode ? e.keyCode : null,
         href: e.target.href ? e.target.href : null,
         coordinates: EventRecorder._getCoordinates(e)

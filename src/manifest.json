@@ -1,8 +1,8 @@
 {
-  "name": "Headless Recorder",
-  "version": "0.8.2",
+  "name": "Studio Recorder",
+  "version": "0.0.1",
   "manifest_version": 2,
-  "description": "A Chrome extension for recording browser interaction and generating Puppeteer & Playwright scripts",
+  "description": "Prefix companion extension to generate PXM automation models from recorded actions",
   "permissions": [
     "storage",
     "webNavigation",
@@ -18,7 +18,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": {
     "default_icon": "images/icon-black.png",
-    "default_title": "Headless Recorder",
+    "default_title": "Prefix Studio",
     "default_popup": "index.html"
   },
   "commands": {

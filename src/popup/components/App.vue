@@ -1,17 +1,14 @@
 <template>
   <div id="headless-recorder" class="recorder">
     <div class="header">
-      <a href="#" @click="goHome">
-        Headless recorder <span class="text-muted"><small>{{version}}</small></span>
+      <a style="font-size: large" href="#" @click="goHome">
+        Prefix <strong>Studio</strong>
       </a>
       <div class="left">
         <div class="recording-badge" v-show="isRecording">
           <span class="red-dot"></span>
           {{recordingBadgeText}}
         </div>
-        <a href="#" @click="toggleShowHelp" class="header-button">
-          <img src="/images/help.svg" alt="help" width="18px">
-        </a>
         <a href="#" @click="openOptions" class="header-button">
           <img src="/images/settings.svg" alt="settings" width="18px">
         </a>
@@ -19,7 +16,7 @@
     </div>
     <div class="main">
       <div class="tabs" v-show="!showHelp">
-        <RecordingTab :code="code" :is-recording="isRecording" :live-events="liveEvents" v-show="!showResultsTab"/>
+        <RecordingTab :code="code" :is-recording="isRecording" :live-events="liveEvents"/>
         <div class="recording-footer" v-show="!showResultsTab">
           <button class="btn btn-sm" @click="toggleRecord" :class="isRecording ? 'btn-danger' : 'btn-primary'">
             {{recordButtonText}}
@@ -28,15 +25,13 @@
             {{pauseButtonText}}
           </button>
           <a href="#" @click="showResultsTab = true" v-show="code">view code</a>
-          <checkly-badge v-if="!isRecording"></checkly-badge>
         </div>
-        <ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />
+        <!--<ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />-->
         <div class="results-footer" v-show="showResultsTab">
           <button class="btn btn-sm btn-primary" @click="restart" v-show="code">Restart</button>
           <a href="#" v-clipboard:copy="getCodeForCopy()" @click.prevent="setCopying" v-show="code">{{copyLinkText}}</a>
         </div>
       </div>
-      <HelpTab v-show="showHelp"></HelpTab>
     </div>
   </div>
 </template>
@@ -47,14 +42,11 @@
   import PlaywrightCodeGenerator from '../../code-generator/PlaywrightCodeGenerator'
   import RecordingTab from './RecordingTab.vue'
   import ResultsTab from './ResultsTab.vue'
-  import HelpTab from './HelpTab.vue'
-  import ChecklyBadge from './ChecklyBadge.vue'
-
   import actions from '../../models/extension-ui-actions'
 
 export default {
     name: 'App',
-    components: { ResultsTab, RecordingTab, HelpTab, ChecklyBadge },
+    components: { ResultsTab, RecordingTab },
     data () {
       return {
         code: '',
@@ -213,16 +205,16 @@ export default {
     },
     computed: {
       recordingBadgeText () {
-        return this.isPaused ? 'paused' : 'recording'
+        return this.isPaused ? 'Paused' : 'Recording Model'
       },
       recordButtonText () {
-        return this.isRecording ? 'Stop' : 'Record'
+        return this.isRecording ? 'Finish' : 'Start Recording'
       },
       pauseButtonText () {
         return this.isPaused ? 'Resume' : 'Pause'
       },
       copyLinkText () {
-        return this.isCopying ? 'copied!' : 'copy to clipboard'
+        return this.isCopying ? 'Returning to Studio...' : 'Save & Quit'
       }
     }
 }

@@ -57,8 +57,8 @@ class RecordingController {
       chrome.webNavigation.onBeforeNavigate.addListener(this._boundedWaitHandler)
 
       chrome.browserAction.setIcon({ path: './images/icon-green.png' })
-      chrome.browserAction.setBadgeText({ text: this._badgeState })
-      chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
+      //chrome.browserAction.setBadgeText({ text: this._badgeState })
+      //chrome.browserAction.setBadgeBackgroundColor({ color: '#FF0000' })
 
       /**
        * Right click menu setup
@@ -70,7 +70,7 @@ class RecordingController {
 
       chrome.contextMenus.create({
         id: this._menuId,
-        title: 'Headless Recorder',
+        title: 'Prefix Studio',
         contexts: ['all']
       })
 
@@ -108,8 +108,8 @@ class RecordingController {
     chrome.contextMenus.onClicked.removeListener(this._boundedMenuHandler)
 
     chrome.browserAction.setIcon({ path: './images/icon-black.png' })
-    chrome.browserAction.setBadgeText({text: this._badgeState})
-    chrome.browserAction.setBadgeBackgroundColor({color: '#45C8F1'})
+    //chrome.browserAction.setBadgeText({text: this._badgeState})
+    //chrome.browserAction.setBadgeBackgroundColor({color: '#45C8F1'})
 
     chrome.storage.local.set({ recording: this._recording }, () => {
       console.debug('recording stored')
@@ -119,14 +119,14 @@ class RecordingController {
   pause () {
     console.debug('pause')
     this._badgeState = '❚❚'
-    chrome.browserAction.setBadgeText({ text: this._badgeState })
+    //chrome.browserAction.setBadgeText({ text: this._badgeState })
     this._isPaused = true
   }
 
   unPause () {
     console.debug('unpause')
     this._badgeState = 'rec'
-    chrome.browserAction.setBadgeText({ text: this._badgeState })
+    //chrome.browserAction.setBadgeText({ text: this._badgeState })
     this._isPaused = false
   }
 
@@ -179,7 +179,7 @@ class RecordingController {
   }
 
   handleControlMessage (msg, sender) {
-    if (msg.control === ctrl.EVENT_RECORDER_STARTED) chrome.browserAction.setBadgeText({ text: this._badgeState })
+    //if (msg.control === ctrl.EVENT_RECORDER_STARTED) chrome.browserAction.setBadgeText({ text: this._badgeState })
     if (msg.control === ctrl.GET_VIEWPORT_SIZE) this.recordCurrentViewportSize(msg.coordinates)
     if (msg.control === ctrl.GET_CURRENT_URL) this.recordCurrentUrl(msg.href)
     if (msg.control === ctrl.GET_SCREENSHOT) this.recordScreenshot(msg.value)
@@ -224,7 +224,7 @@ class RecordingController {
   }
 
   handleWait () {
-    chrome.browserAction.setBadgeText({ text: 'wait' })
+    //chrome.browserAction.setBadgeText({ text: 'wait' })
   }
 
   injectScript () {

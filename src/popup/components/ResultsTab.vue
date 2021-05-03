@@ -42,8 +42,8 @@ export default {
   },
   data () {
     return {
-      activeTab: TYPE.PUPPETEER,
-      tabs: [TYPE.PUPPETEER, TYPE.PLAYWRIGHT]
+      activeTab: TYPE.PLAYWRIGHT,
+      tabs: [TYPE.PLAYWRIGHT]
     }
   },
   mounted() {
