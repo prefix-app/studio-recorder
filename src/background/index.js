@@ -3,7 +3,7 @@ import ctrl from '../models/extension-control-messages'
 import actions from '../models/extension-ui-actions'
 
 class RecordingController {
-  constructor () {
+  constructor() {
     this._recording = []
     this._boundedMessageHandler = null
     this._boundedNavigationHandler = null
@@ -25,7 +25,7 @@ class RecordingController {
     }
   }
 
-  boot () {
+  boot() {
     chrome.extension.onConnect.addListener(port => {
       console.debug('listeners connected')
       port.onMessage.addListener(msg => {
@@ -38,7 +38,7 @@ class RecordingController {
     })
   }
 
-  start () {
+  start() {
     console.debug('start recording')
     this.cleanUp(() => {
       this._badgeState = 'rec'
@@ -98,7 +98,7 @@ class RecordingController {
     })
   }
 
-  stop () {
+  stop() {
     console.debug('stop recording')
     this._badgeState = this._recording.length > 0 ? '1' : ''
 
@@ -116,21 +116,21 @@ class RecordingController {
     })
   }
 
-  pause () {
+  pause() {
     console.debug('pause')
     this._badgeState = '❚❚'
     //chrome.browserAction.setBadgeText({ text: this._badgeState })
     this._isPaused = true
   }
 
-  unPause () {
+  unPause() {
     console.debug('unpause')
     this._badgeState = 'rec'
     //chrome.browserAction.setBadgeText({ text: this._badgeState })
     this._isPaused = false
   }
 
-  cleanUp (cb) {
+  cleanUp(cb) {
     console.debug('cleanup')
     this._recording = []
     chrome.browserAction.setBadgeText({ text: '' })
@@ -140,52 +140,57 @@ class RecordingController {
     })
   }
 
-  recordCurrentUrl (href) {
+  recordCurrentUrl(href) {
     if (!this._hasGoto) {
       console.debug('recording goto* for:', href)
-      this.handleMessage({selector: undefined, value: undefined, action: pptrActions.GOTO, href})
+      this.handleMessage({ update: false, selector: undefined, value: undefined, action: pptrActions.GOTO, href })
       this._hasGoto = true
     }
   }
 
-  recordCurrentViewportSize (value) {
+  recordCurrentViewportSize(value) {
     if (!this._hasViewPort) {
-      this.handleMessage({selector: undefined, value, action: pptrActions.VIEWPORT})
+      this.handleMessage({ update: false, selector: undefined, value, action: pptrActions.VIEWPORT })
       this._hasViewPort = true
     }
   }
 
-  recordNavigation () {
-    this.handleMessage({ selector: undefined, value: undefined, action: pptrActions.NAVIGATION })
+  recordNavigation() {
+    this.handleMessage({ update: false, selector: undefined, value: undefined, action: pptrActions.NAVIGATION })
   }
 
-  recordScreenshot (value) {
-    this.handleMessage({ selector: undefined, value, action: pptrActions.SCREENSHOT })
+  recordScreenshot(value) {
+    this.handleMessage({ update: false, selector: undefined, value, action: pptrActions.SCREENSHOT })
   }
 
-  handleMessage (msg, sender) {
+  handleMessage(msg, sender) {
     if (msg.control) return this.handleControlMessage(msg, sender)
 
     // to account for clicks etc. we need to record the frameId and url to later target the frame in playback
     msg.frameId = sender ? sender.frameId : null
     msg.frameUrl = sender ? sender.url : null
 
-    if (!this._isPaused) {
-      this._recording.push(msg)
+    if (!this._isPaused && this._recording) {
+      if (msg.update && this._recording[this._recording.length - 1].keyCodes) {
+        this._recording[this._recording.length - 1].keyCodes.push(msg.keyCodes[0]);
+      } else {
+        this._recording.push(msg)
+      }
+
       chrome.storage.local.set({ recording: this._recording }, () => {
         console.debug('stored recording updated')
       })
     }
   }
 
-  handleControlMessage (msg, sender) {
+  handleControlMessage(msg, sender) {
     //if (msg.control === ctrl.EVENT_RECORDER_STARTED) chrome.browserAction.setBadgeText({ text: this._badgeState })
     if (msg.control === ctrl.GET_VIEWPORT_SIZE) this.recordCurrentViewportSize(msg.coordinates)
     if (msg.control === ctrl.GET_CURRENT_URL) this.recordCurrentUrl(msg.href)
     if (msg.control === ctrl.GET_SCREENSHOT) this.recordScreenshot(msg.value)
   }
 
-  handleNavigation ({ frameId }) {
+  handleNavigation({ frameId }) {
     console.debug('frameId is:', frameId)
     this.injectScript()
     if (frameId === 0) {
@@ -193,7 +198,7 @@ class RecordingController {
     }
   }
 
-  handleMenuInteraction (info, tab) {
+  handleMenuInteraction(info, tab) {
     console.debug('context menu clicked')
     switch (info.menuItemId) {
       case (this._menuId + this._menuOptions.SCREENSHOT):
@@ -205,7 +210,7 @@ class RecordingController {
     }
   }
 
-  handleKeyCommands (command) {
+  handleKeyCommands(command) {
     switch (command) {
       case actions.TOGGLE_SCREENSHOT_MODE:
         this.toggleScreenShotMode(actions.TOGGLE_SCREENSHOT_MODE)
@@ -216,18 +221,18 @@ class RecordingController {
     }
   }
 
-  toggleScreenShotMode (action) {
+  toggleScreenShotMode(action) {
     console.debug('toggling screenshot mode')
-    chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
       chrome.tabs.sendMessage(tabs[0].id, { action })
     })
   }
 
-  handleWait () {
+  handleWait() {
     //chrome.browserAction.setBadgeText({ text: 'wait' })
   }
 
-  injectScript () {
+  injectScript() {
     chrome.tabs.executeScript({ file: 'content-script.js', allFrames: true })
   }
 }

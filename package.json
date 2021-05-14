@@ -4,7 +4,7 @@
   "description": "Prefix companion extension to generate PXM automation models from recorded actions",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development DEBUG=puppeteer-recorder:* webpack --watch",
+    "dev": "NODE_ENV=development DEBUG=puppeteer-recorder:* webpack  --mode production --watch",
     "build": "NODE_ENV=production webpack",
     "test": "npm run unit-test && npm run e2e-test",
     "test-prod": "NODE_ENV=production npm run unit-test && npm run e2e-test",

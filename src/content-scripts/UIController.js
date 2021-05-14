@@ -3,11 +3,11 @@ import EventEmitter from 'events'
 const BORDER_THICKNESS = 3
 
 const defaults = {
-  showSelector: false
+  showSelector: true
 }
 
 class UIController extends EventEmitter {
-  constructor (options) {
+  constructor(options) {
     options = Object.assign({}, defaults, options)
 
     super()
@@ -21,7 +21,7 @@ class UIController extends EventEmitter {
     this._boundeMouseUp = this._mouseup.bind(this)
   }
 
-  showSelector () {
+  showSelector() {
     console.debug('UIController:show')
     if (!this._overlay) {
       this._overlay = document.createElement('div')
@@ -49,7 +49,7 @@ class UIController extends EventEmitter {
     }
   }
 
-  hideSelector () {
+  hideSelector() {
     console.debug('UIController:hide')
     if (this._overlay) {
       document.body.removeChild(this._overlay)
@@ -58,7 +58,7 @@ class UIController extends EventEmitter {
     this._dimensions = {}
   }
 
-  _mousemove (e) {
+  _mousemove(e) {
     if (this._element !== e.target) {
       this._element = e.target
 
@@ -84,7 +84,7 @@ class UIController extends EventEmitter {
       }
     }
   }
-  _mouseup (e) {
+  _mouseup(e) {
     this._overlay.style.backgroundColor = 'white'
     setTimeout(() => {
       this._overlay.style.backgroundColor = 'none'
@@ -105,7 +105,7 @@ class UIController extends EventEmitter {
     }, 100)
   }
 
-  _cleanup () {
+  _cleanup() {
     document.body.removeEventListener('mousemove', this._boundeMouseMove, false)
     document.body.removeEventListener('mouseup', this._boundeMouseUp, false)
     document.body.removeChild(this._overlay)

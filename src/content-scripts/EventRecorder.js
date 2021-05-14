@@ -7,7 +7,7 @@ import finder from '@medv/finder'
 const DEFAULT_MOUSE_CURSOR = 'default'
 
 export default class EventRecorder {
-  constructor () {
+  constructor() {
     this._boundedMessageListener = null
     this._eventLog = []
     this._previousEvent = null
@@ -23,8 +23,11 @@ export default class EventRecorder {
       case "click":
         return "Click Once";
       case "keydown":
+        if (e.keyCode == 13) {
+          return "Hit Enter";
+        }
         return "Fill Field";
-      case "change":
+      case "select":
         return "Dropdown Select";
       case "navigation*":
         return "Open URL";
@@ -36,7 +39,7 @@ export default class EventRecorder {
 
   _getReadableName(el, selectedSelector) {
     var readableName = '';
-  
+
     if ('name' in el) {
       if (el.name !== '') {
         readableName = el.name;
@@ -67,15 +70,17 @@ export default class EventRecorder {
         readableName = el.title;
       }
     }
-  
+
     if (readableName === '') {
       readableName = selectedSelector;
     }
-  
-    if (readableName.length > 26) {
+
+    if (readableName && readableName.length > 26) {
       readableName = readableName.substring(0, 26) + '..';
     }
-  
+
+    readableName = readableName.replace(/(\r\n|\n|\r)/gm, "");
+
     if (el.tagName == 'A') {
       readableName += " [Link]"
     }
@@ -129,26 +134,33 @@ export default class EventRecorder {
     if (['TR', 'TD', 'TH', 'TABLE'].includes(el.tagName)) {
       readableName += " [Table]"
     }
-  
+
     return readableName;
   }
 
-  boot () {
+  boot() {
     // We need to check the existence of chrome for testing purposes
-    if (chrome.storage && chrome.storage.local) {
-      chrome.storage.local.get(['options'], ({options}) => {
-        const { dataAttribute } = options ? options.code : {}
-        if (dataAttribute) {
-          this._dataAttribute = dataAttribute
-        }
+    try {
+      if (chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(['options'], ({ options }) => {
+          const { dataAttribute } = options ? options.code : {}
+          if (dataAttribute) {
+            this._dataAttribute = dataAttribute
+          }
+          this._initializeRecorder()
+        })
+      } else {
         this._initializeRecorder()
-      })
-    } else {
-      this._initializeRecorder()
+      }
+    } catch (e) {
+      console.log("Error in boot")
+      console.log(e);
+      console.log(e.toString())
     }
+
   }
 
-  _initializeRecorder () {
+  _initializeRecorder() {
     const events = Object.values(eventsToRecord)
     if (!window.pptRecorderAddedControlListeners) {
       this._addAllListeners(events)
@@ -169,7 +181,7 @@ export default class EventRecorder {
     }
   }
 
-  _handleBackgroundMessage (msg, sender, sendResponse) {
+  _handleBackgroundMessage(msg, sender, sendResponse) {
     console.debug('content-script: message from background', msg)
     if (msg && msg.action) {
       switch (msg.action) {
@@ -184,14 +196,14 @@ export default class EventRecorder {
     }
   }
 
-  _addAllListeners (events) {
+  _addAllListeners(events) {
     const boundedRecordEvent = this._recordEvent.bind(this)
     events.forEach(type => {
       window.addEventListener(type, boundedRecordEvent, true)
     })
   }
 
-  _sendMessage (msg) {
+  _sendMessage(msg) {
     // filter messages based on enabled / disabled features
     if (msg.action === 'click' && !this._isRecordingClicks) return
 
@@ -208,48 +220,75 @@ export default class EventRecorder {
     }
   }
 
-  _recordEvent (e) {
-    if (this._previousEvent && this._previousEvent.timeStamp === e.timeStamp) return
-    this._previousEvent = e
+  _updateMessage(msg) {
+    msg.update = true;
+    try {
+      // poor man's way of detecting whether this script was injected by an actual extension, or is loaded for
+      // testing purposes
+      if (chrome.runtime && chrome.runtime.onMessage) {
+        chrome.runtime.sendMessage(msg)
+      }
+    } catch (err) {
+      console.debug('caught error', err)
+    }
+  }
 
+  _recordEvent(e) {
     // we explicitly catch any errors and swallow them, as none node-type events are also ingested.
     // for these events we cannot generate selectors, which is OK
     try {
-      this._sendMessage({
+      const currentEvent = {
+        update: false,
         selector: this._getSelector(e),
         value: e.target.value,
         readableName: this._getReadableName(e.target, this._getSelector(e)),
         tagName: e.target.tagName,
         action: this._translateAction(e),
-        keyCode: e.keyCode ? e.keyCode : null,
+        keyCodes: e.keyCode ? [e.keyCode] : [],
         href: e.target.href ? e.target.href : null,
-        coordinates: EventRecorder._getCoordinates(e)
-      })
-    } catch (e) {}
+        coordinates: EventRecorder._getCoordinates(e),
+        timeStamp: e.timeStamp
+      }
+
+      console.log(currentEvent)
+      if (currentEvent.action === 'Fill Field' &&
+        currentEvent.keyCodes[0] !== 13 &&
+        this._previousEvent &&
+        this._previousEvent.action === 'Fill Field' &&
+        this._previousEvent.selector === currentEvent.selector) {
+        this._updateMessage(currentEvent)
+      } else {
+        this._sendMessage(currentEvent)
+        if (this._previousEvent && this._previousEvent.timeStamp === e.timeStamp) return
+        this._previousEvent = currentEvent
+      }
+
+    } catch (e) {
+      console.log(e);
+    }
+
   }
 
-  _getEventLog () {
+  _getEventLog() {
     return this._eventLog
   }
 
-  _clearEventLog () {
+  _clearEventLog() {
     this._eventLog = []
   }
 
-  _handleScreenshotMode (isClipped) {
+  _handleScreenshotMode(isClipped) {
     this._disableClickRecording()
     this._uiController = new UIController({ showSelector: isClipped })
     this._screenShotMode = !this._screenShotMode
     document.body.style.cursor = 'crosshair'
 
     console.debug('screenshot mode:', this._screenShotMode)
-
     if (this._screenShotMode) {
       this._uiController.showSelector()
     } else {
       this._uiController.hideSelector()
     }
-
     this._uiController.on('click', event => {
       this._screenShotMode = false
       document.body.style.cursor = DEFAULT_MOUSE_CURSOR
@@ -258,15 +297,15 @@ export default class EventRecorder {
     })
   }
 
-  _disableClickRecording () {
+  _disableClickRecording() {
     this._isRecordingClicks = false
   }
 
-  _enableClickRecording () {
+  _enableClickRecording() {
     this._isRecordingClicks = true
   }
 
-  _getSelector (e) {
+  _getSelector(e) {
     if (this._dataAttribute && e.target.getAttribute(this._dataAttribute)) {
       return `[${this._dataAttribute}="${e.target.getAttribute(this._dataAttribute)}"]`
     }
@@ -282,7 +321,7 @@ export default class EventRecorder {
     })
   }
 
-  static _getCoordinates (evt) {
+  static _getCoordinates(evt) {
     const eventsWithCoordinates = {
       mouseup: true,
       mousedown: true,
