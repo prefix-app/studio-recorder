@@ -3,8 +3,7 @@ export default {
   DBLCLICK: 'dblclick',
   KEYDOWN: 'keydown',
   SELECT: 'select',
-  LOAD: 'load',
-  UNLOAD: 'unload'
+  LOAD: 'load'
 }
 
 // const events = [

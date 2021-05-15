@@ -81,11 +81,11 @@ export default {
 	mounted() {
 		this.loadState(() => {
 			if (this.isRecording) {
-				console.debug("opened in recording state, fetching recording events");
+				console.log("opened in recording state, fetching recording events");
 				this.$chrome.storage.local.get(
 					["recording", "options"],
 					({ recording }) => {
-						console.debug("loaded recording", recording);
+						console.log("loaded recording", recording);
 						this.liveEvents = recording;
 					}
 				);

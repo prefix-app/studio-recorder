@@ -43,7 +43,7 @@ export default {
 		parseEventValue(event) {
 			if (event.action === "viewport*")
 				return `width: ${event.value.width}, height: ${event.value.height}`;
-			if (event.action === "Open URL") {
+			if (event.action === "Open URL" && event.href) {
 				if (event.href.length > 28) {
 					event.href = event.href.substring(0, 28) + "..";
 				}

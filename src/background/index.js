@@ -155,8 +155,8 @@ class RecordingController {
     }
   }
 
-  recordNavigation() {
-    this.handleMessage({ update: false, selector: undefined, value: undefined, action: pptrActions.NAVIGATION })
+  recordNavigation(href) {
+    this.handleMessage({ update: false, selector: undefined, value: undefined, action: pptrActions.NAVIGATION, href })
   }
 
   recordScreenshot(value) {
@@ -177,8 +177,11 @@ class RecordingController {
         this._recording.push(msg)
       }
 
+      const rec = this._recording
       chrome.storage.local.set({ recording: this._recording }, () => {
         console.debug('stored recording updated')
+        console.debug(rec)
+        console.debug('printed')
       })
     }
   }
@@ -190,11 +193,11 @@ class RecordingController {
     if (msg.control === ctrl.GET_SCREENSHOT) this.recordScreenshot(msg.value)
   }
 
-  handleNavigation({ frameId }) {
+  handleNavigation({ frameId, url }) {
     console.debug('frameId is:', frameId)
     this.injectScript()
     if (frameId === 0) {
-      this.recordNavigation()
+      this.recordNavigation(url)
     }
   }
 

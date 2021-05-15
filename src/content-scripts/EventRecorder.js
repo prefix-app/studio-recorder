@@ -38,6 +38,9 @@ export default class EventRecorder {
   }
 
   _getReadableName(el, selectedSelector) {
+    if (selectedSelector == null)
+      return null
+
     var readableName = '';
 
     if ('name' in el) {
@@ -140,24 +143,17 @@ export default class EventRecorder {
 
   boot() {
     // We need to check the existence of chrome for testing purposes
-    try {
-      if (chrome.storage && chrome.storage.local) {
-        chrome.storage.local.get(['options'], ({ options }) => {
-          const { dataAttribute } = options ? options.code : {}
-          if (dataAttribute) {
-            this._dataAttribute = dataAttribute
-          }
-          this._initializeRecorder()
-        })
-      } else {
+    if (chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['options'], ({ options }) => {
+        const { dataAttribute } = options ? options.code : {}
+        if (dataAttribute) {
+          this._dataAttribute = dataAttribute
+        }
         this._initializeRecorder()
-      }
-    } catch (e) {
-      console.log("Error in boot")
-      console.log(e);
-      console.log(e.toString())
+      })
+    } else {
+      this._initializeRecorder()
     }
-
   }
 
   _initializeRecorder() {
@@ -245,12 +241,13 @@ export default class EventRecorder {
         tagName: e.target.tagName,
         action: this._translateAction(e),
         keyCodes: e.keyCode ? [e.keyCode] : [],
-        href: e.target.href ? e.target.href : null,
+        href: e.target.href ? e.target.href : '',
         coordinates: EventRecorder._getCoordinates(e),
         timeStamp: e.timeStamp
       }
 
       console.log(currentEvent)
+
       if (currentEvent.action === 'Fill Field' &&
         currentEvent.keyCodes[0] !== 13 &&
         this._previousEvent &&
@@ -262,11 +259,8 @@ export default class EventRecorder {
         if (this._previousEvent && this._previousEvent.timeStamp === e.timeStamp) return
         this._previousEvent = currentEvent
       }
-
     } catch (e) {
-      console.log(e);
     }
-
   }
 
   _getEventLog() {
@@ -306,19 +300,23 @@ export default class EventRecorder {
   }
 
   _getSelector(e) {
-    if (this._dataAttribute && e.target.getAttribute(this._dataAttribute)) {
-      return `[${this._dataAttribute}="${e.target.getAttribute(this._dataAttribute)}"]`
-    }
+    try {
+      if (this._dataAttribute && e.target.getAttribute(this._dataAttribute)) {
+        return `[${this._dataAttribute}="${e.target.getAttribute(this._dataAttribute)}"]`
+      }
 
-    if (e.target.id) {
-      return `#${e.target.id}`
-    }
+      if (e.target.id) {
+        return `#${e.target.id}`
+      }
 
-    return finder(e.target, {
-      seedMinLength: 5,
-      optimizedMinLength: (e.target.id) ? 2 : 10,
-      attr: (name, _value) => name === this._dataAttribute
-    })
+      return finder(e.target, {
+        seedMinLength: 5,
+        optimizedMinLength: (e.target.id) ? 2 : 10,
+        attr: (name, _value) => name === this._dataAttribute
+      })
+    } catch (e) {
+      return null;
+    }
   }
 
   static _getCoordinates(evt) {
