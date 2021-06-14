@@ -15,7 +15,7 @@ class UIController extends EventEmitter {
     this._selector = null
     this._element = null
     this._dimensions = {}
-    this._showSelector = options.showSelector
+    this._showSelector = true
 
     this._boundeMouseMove = this._mousemove.bind(this)
     this._boundeMouseUp = this._mouseup.bind(this)

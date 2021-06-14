@@ -29,6 +29,8 @@ export default class EventRecorder {
         return "Fill Field";
       case "select":
         return "Dropdown Select";
+      case "change":
+        return "Dropdown Select";
       case "navigation*":
         return "Open URL";
       case "goto*":

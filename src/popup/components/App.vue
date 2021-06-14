@@ -210,8 +210,11 @@ export default {
 			this.showHelp = !this.showHelp;
 		},
 		saveAndQuit() {
-			this.$chrome.runtime.sendMessage({ actions: this.recording }, null);
-			this.bus.postMessage({ action: actions.EXIT });
+			this.$chrome.runtime.sendMessage(
+				{ action: actions.EXIT, recording: this.recording },
+				null
+			);
+			this.bus.postMessage({ action: actions.EXIT, recording: this.recording });
 			return this.currentResultTab === "puppeteer"
 				? this.code
 				: this.codeForPlaywright;

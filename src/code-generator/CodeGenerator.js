@@ -5,7 +5,7 @@ import pptrActions from './pptr-actions'
 export const defaults = {
   wrapAsync: true,
   headless: true,
-  waitForNavigation: true,
+  waitForNavigation: false,
   waitForSelectorOnClick: true,
   blankLinesBetweenBlocks: true,
   dataAttribute: '',
@@ -74,7 +74,7 @@ export default class CodeGenerator {
           this._blocks.push((this._handleViewport(value.width, value.height)))
           break
         case pptrActions.NAVIGATION:
-          this._blocks.push(this._handleWaitForNavigation())
+          //this._blocks.push(this._handleWaitForNavigation())
           this._hasNavigation = true
           break
         case pptrActions.SCREENSHOT:

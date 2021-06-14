@@ -197,7 +197,7 @@ class RecordingController {
     console.debug('frameId is:', frameId)
     this.injectScript()
     if (frameId === 0) {
-      this.recordNavigation(url)
+      //this.recordNavigation(url)
     }
   }
 
