@@ -61,7 +61,7 @@ import { defaults as code } from "../../code-generator/CodeGenerator";
 const defaults = {
 	code,
 	extension: {
-		telemetry: false,
+		telemetry: true,
 	},
 };
 

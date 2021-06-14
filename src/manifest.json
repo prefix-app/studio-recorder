@@ -18,7 +18,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": {
     "default_icon": "images/icon-black.png",
-    "default_title": "Studio Recorder",
+    "default_title": "Prefix Studio",
     "default_popup": "index.html"
   },
   "commands": {
@@ -41,7 +41,7 @@
     "scripts": [
       "background.js"
     ],
-    "persistent": false
+    "persistent": true
   },
   "options_ui": {
     "page": "options.html",

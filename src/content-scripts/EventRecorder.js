@@ -257,9 +257,17 @@ export default class EventRecorder {
         this._previousEvent.selector === currentEvent.selector) {
         this._updateMessage(currentEvent)
       } else {
-        this._sendMessage(currentEvent)
-        if (this._previousEvent && this._previousEvent.timeStamp === e.timeStamp) return
-        this._previousEvent = currentEvent
+        if (currentEvent.action == 'Dropdown Select') {
+          if (currentEvent.tagName == 'SELECT') {
+            this._sendMessage(currentEvent)
+            if (this._previousEvent && this._previousEvent.timeStamp === e.timeStamp) return
+            this._previousEvent = currentEvent
+          }
+        } else {
+          this._sendMessage(currentEvent)
+          if (this._previousEvent && this._previousEvent.timeStamp === e.timeStamp) return
+          this._previousEvent = currentEvent
+        }
       }
     } catch (e) {
     }

@@ -36,7 +36,6 @@
 					>
 						{{ pauseButtonText }}
 					</button>
-					<a href="#" @click="showResultsTab = true" v-show="code">view code</a>
 				</div>
 				<!--<ResultsTab :puppeteer="code" :playwright="codeForPlaywright" :options="options" v-if="showResultsTab" v-on:update:tab="currentResultTab = $event" />-->
 				<div class="results-footer" v-show="showResultsTab">
@@ -101,6 +100,7 @@ export default {
 		toggleRecord() {
 			if (this.isRecording) {
 				this.stop();
+				this.showResultsTab = true;
 			} else {
 				this.start();
 			}
@@ -151,8 +151,8 @@ export default {
 		},
 		cleanUp() {
 			this.recording = this.liveEvents = [];
-			this.code = "";
-			this.codeForPlaywright = "";
+			this.code = true;
+			this.codeForPlaywright = true;
 			this.showResultsTab = this.isRecording = this.isPaused = false;
 			this.storeState();
 		},
@@ -211,10 +211,10 @@ export default {
 		},
 		saveAndQuit() {
 			this.$chrome.runtime.sendMessage(
-				{ action: actions.EXIT, recording: this.recording },
+				{ action: "EXIT", recording: this.recording },
 				null
 			);
-			this.bus.postMessage({ action: actions.EXIT, recording: this.recording });
+			this.bus.postMessage({ action: actions.EXIT });
 			return this.currentResultTab === "puppeteer"
 				? this.code
 				: this.codeForPlaywright;
